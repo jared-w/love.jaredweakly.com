@@ -1,0 +1,41 @@
+name:                love-jaredweakly-com
+version:             0.1.0
+github:              "jared-w/love-jaredweakly-com"
+license:             BSD3
+author:              "Jared Weakly"
+maintainer:          "jaredweakly@gmail.com"
+copyright:           "2019 Jared Weakly"
+
+description:         Please see the README on GitHub at <https://github.com/jared-w/love-jaredweakly-com#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- aws-lambda-haskell-runtime >= 2.0.1
+- aeson
+
+library:
+  source-dirs: src
+
+executables:
+  bootstrap:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -O2
+    - -static
+    - -with-rtsopts=-N
+    cc-options: -static
+    ld-options: -static -pthread
+    dependencies:
+    - love-jaredweakly-com
+
+default-extensions:
+  - TemplateHaskell
+  - RecordWildCards
+  - OverloadedLists
+  - OverloadedStrings
+  - DeriveGeneric
+  - DeriveAnyClass
+  - DuplicateRecordFields
