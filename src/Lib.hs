@@ -36,8 +36,25 @@ quotes =
   , "Hey I luff you"
   ]
 
-html :: String -> String
-html q = [r|<!DOCTYPE html>
+greenTheme :: [String]
+greenTheme =
+ [ "hsla(71, 58%, 93%, 1)"
+ , "hsla(148, 57%, 83%, 1)"
+ , "hsla(168, 46%, 69%, 1)"
+ , "hsla(184, 40%, 52%, 1)"
+ , "hsla(207, 58%, 35%, 1)"
+ ]
+
+themes = [greenTheme]
+
+html :: String -> [String] -> String
+html q t =
+  let theme = concat $
+        zipWith (\a b -> a<>b<>";")
+                ["--light", "--primary-light", "--primary", "--primary-dark", "--dark"]
+                t
+  in
+  [r|<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -49,13 +66,7 @@ html q = [r|<!DOCTYPE html>
         <h1>|] <> q <> [r|</h1>
     </body>
     <style>
-        :root {
-            --light: hsla(71, 58%, 93%, 1);
-            --primary-light: hsla(148, 57%, 83%, 1);
-            --primary: hsla(168, 46%, 69%, 1);
-            --primary-dark: hsla(184, 40%, 52%, 1);
-            --dark: hsla(207, 58%, 35%, 1);
-        }
+        :root { |] <> theme <> [r| }
 
         *,
         *:before,
@@ -110,18 +121,20 @@ html q = [r|<!DOCTYPE html>
 </html>
 |]
 
-getInList :: IO Int
-getInList = getStdRandom (randomR (0, length quotes - 1))
+getIn :: [a] -> IO a
+getIn as = do
+    n <- randomRIO (0, length as - 1)
+    pure $ as !! n
 
 handler :: Event -> Context -> IO (Either String Response)
 handler _ context = do
-  n <- getInList
-  let quote = quotes !! n
-  pure $ 
+  q <- getIn quotes
+  t <- getIn themes
+  pure $
     Right Response
         { statusCode = 200
         , headers = object [
             "Content-Type" .= ("text/html" :: String)
         ]
-        , body = html quote
+        , body = html q t
         }

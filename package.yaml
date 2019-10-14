@@ -37,7 +37,6 @@ executables:
 
 default-extensions:
     - TemplateHaskell
-    - OverloadedLists
     - RecordWildCards
     - OverloadedStrings
     - DeriveGeneric
