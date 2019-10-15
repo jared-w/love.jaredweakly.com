@@ -1,11 +1,11 @@
 {-# Language QuasiQuotes #-}
 module Lib where
 
-import GHC.Generics
-import Data.Aeson
-import Aws.Lambda
-import Text.RawString.QQ
-import System.Random
+import           GHC.Generics
+import           Data.Aeson
+import           Aws.Lambda
+import           Text.RawString.QQ
+import           System.Random
 
 -- Input
 data Event = Event
@@ -20,13 +20,14 @@ data Response = Response
     } deriving (Generic, ToJSON)
 
 quotes :: [String]
-quotes = 
+quotes =
   [ "You're my favorito, baberrito"
   , "Neato mosquito, baberrito"
   , "You're my favorite"
   , "Did you  know that you're my mostest favoritest in the whole wide world?"
   , "Snug me"
   , "I'm a big fan of the snugs"
+  , "Sneep Snoop"
   , "I love you"
   , "ily"
   , "ilysm <3"
@@ -36,24 +37,35 @@ quotes =
   , "Hey I luff you"
   ]
 
-greenTheme :: [String]
-greenTheme =
- [ "hsla(71, 58%, 93%, 1)"
- , "hsla(148, 57%, 83%, 1)"
- , "hsla(168, 46%, 69%, 1)"
- , "hsla(184, 40%, 52%, 1)"
- , "hsla(207, 58%, 35%, 1)"
- ]
+themes :: [[String]]
+themes = [greenTheme, toneTheme, starLight, bAndW]
+ where
+  greenTheme :: [String]
+  greenTheme =
+    [ "hsl(71, 58%, 93%)"
+    , "hsl(148, 57%, 83%)"
+    , "hsl(168, 46%, 69%)"
+    , "hsl(184, 40%, 52%)"
+    , "hsl(207, 58%, 35%)"
+    ]
 
-themes = [greenTheme]
+  toneTheme :: [String]
+  toneTheme = ["#EAD3AE", "#ECDBAD", "#CC948D", "#A25D68", "#654A60"]
+
+  starLight :: [String]
+  starLight = ["#DAB989", "#69B2C4", "#4578D1", "#213D77", "#202C4B"]
+
+  bAndW :: [String]
+  bAndW = ["#0f0f0f", "#3d3d3d", "#6b6b6b", "#a8a8a8", "#e6e6e6"]
+
+mkTheme :: [String] -> String
+mkTheme t = concat $ zipWith (\a b -> a <> ": " <> b <> ";") vars t
+ where
+  vars =
+    ["--light", "--primary-light", "--primary", "--primary-dark", "--dark"]
 
 html :: String -> [String] -> String
 html q t =
-  let theme = concat $
-        zipWith (\a b -> a<>b<>";")
-                ["--light", "--primary-light", "--primary", "--primary-dark", "--dark"]
-                t
-  in
   [r|<!DOCTYPE html>
 <html lang="en">
     <head>
@@ -66,7 +78,7 @@ html q t =
         <h1>|] <> q <> [r|</h1>
     </body>
     <style>
-        :root { |] <> theme <> [r| }
+        :root { |] <> mkTheme t <> [r| }
 
         *,
         *:before,
@@ -123,18 +135,15 @@ html q t =
 
 getIn :: [a] -> IO a
 getIn as = do
-    n <- randomRIO (0, length as - 1)
-    pure $ as !! n
+  n <- randomRIO (0, length as - 1)
+  pure $ as !! n
 
 handler :: Event -> Context -> IO (Either String Response)
 handler _ context = do
   q <- getIn quotes
   t <- getIn themes
-  pure $
-    Right Response
-        { statusCode = 200
-        , headers = object [
-            "Content-Type" .= ("text/html" :: String)
-        ]
-        , body = html q t
-        }
+  pure $ Right Response
+    { statusCode = 200
+    , headers    = object ["Content-Type" .= ("text/html" :: String)]
+    , body       = html q t
+    }
