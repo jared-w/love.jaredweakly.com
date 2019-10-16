@@ -1,0 +1,66 @@
+:root {
+    {{& theme }}
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: grid;
+    place-content: center;
+
+    background-image: linear-gradient(
+        122deg,
+        var(--primary-light) 0%,
+        var(--primary-dark) 100%
+    );
+}
+
+html,
+body {
+    height: 100%;
+}
+
+article {
+    width: 80vw;
+    height: 60vh;
+    border-radius: 4px;
+
+    display: grid;
+    align-items: center;
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(3, auto);
+}
+
+article:after {
+    content: '';
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+
+    /* prettier-ignore */
+    box-shadow:
+        inset 0 0 0 40vh rgba(0, 0, 0, 0.25),
+              0 1px 1px rgba(0, 0, 0, .6), 
+              0 2px 2px rgba(0, 0, 0, .6), 
+              0 4px 4px rgba(0, 0, 0, .6), 
+              0 8px 8px rgba(0, 0, 0, .6);
+    mix-blend-mode: soft-light;
+    filter: blur(2px);
+}
+
+h1 {
+    font-size: calc(2rem + 2.4vw * 1.5);
+    color: var(--light);
+    grid-row: 2;
+    grid-column: 2;
+    text-align: center;
+    padding: 5vmin;
+}

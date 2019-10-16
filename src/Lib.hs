@@ -21,7 +21,7 @@ data Response = Response
     , body :: Text
     } deriving (Show, Generic, ToJSON)
 
-data ShadowData = ShadowData
+data ThemeData = ThemeData
     { title :: Text
     , theme :: Text
     } deriving (Show, Generic, ToJSON)
@@ -71,11 +71,18 @@ mkTheme t = TL.concat $ zipWith (\a b -> a <> ": " <> b <> ";") vars t
   vars =
     ["--light", "--primary-light", "--primary", "--primary-dark", "--dark"]
 
-shadowTemplate :: ShadowData -> Text
+shadowTemplate :: ThemeData -> Text
 shadowTemplate d =
   let mainT = $(TH.compileMustacheFile "./src/templates/shadow.mustache")
       styleT =
           $(TH.compileMustacheFile "./src/templates/shadow.style.mustache")
+  in  renderMustache (mainT <> styleT) (toJSON d)
+
+blurTemplate :: ThemeData -> Text
+blurTemplate d =
+  let mainT = $(TH.compileMustacheFile "./src/templates/blur.mustache")
+      styleT =
+          $(TH.compileMustacheFile "./src/templates/blur.style.mustache")
   in  renderMustache (mainT <> styleT) (toJSON d)
 
 getIn :: [a] -> IO a
@@ -85,12 +92,12 @@ getIn as = do
 
 handler :: Event -> Context -> IO (Either Text Response)
 handler _ context = do
-  q <- getIn quotes
-  t <- getIn themes
-  let shadowData = ShadowData q (mkTheme t)
+  q    <- getIn quotes
+  t    <- getIn themes
+  tmpl <- getIn [shadowTemplate, blurTemplate]
 
   pure $ Right Response
     { statusCode = 200
     , headers    = object ["Content-Type" .= ("text/html" :: Text)]
-    , body       = shadowTemplate shadowData
+    , body       = tmpl $ ThemeData q (mkTheme t)
     }
