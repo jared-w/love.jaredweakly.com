@@ -10,12 +10,11 @@ description: Please see the README on GitHub at <https://github.com/jared-w/love
 
 dependencies:
     - base >= 4.7 && < 5
-    - aws-lambda-haskell-runtime >= 2.0.1
     - aeson
-    - bytestring
-    - http-types
-    - raw-strings-qq
+    - aws-lambda-haskell-runtime
     - random
+    - stache
+    - text
 
 library:
     source-dirs: src
