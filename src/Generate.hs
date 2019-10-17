@@ -13,6 +13,7 @@ import qualified Text.Mustache.Compile.TH      as TH
 data ThemeData = ThemeData
     { title :: Text
     , theme :: Theme
+    , background :: String
     } deriving (Show, Generic, ToJSON)
 
 data HSL = HSL

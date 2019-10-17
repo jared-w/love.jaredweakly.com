@@ -4,10 +4,7 @@ import           GHC.Generics
 import           Data.Aeson
 import           Aws.Lambda
 import           System.Random
-import qualified Data.Text.Lazy                as TL
 import           Data.Text.Lazy                 ( Text )
-import           Text.Mustache
-import qualified Text.Mustache.Compile.TH      as TH
 import           Generate
 
 data Event = Event
@@ -61,19 +58,34 @@ themes = [greenTheme, toneTheme, starLight, bAndW]
   bAndW :: Theme
   bAndW = mkTheme [HSL 0 5 90, HSL 0 5 70, HSL 0 5 50, HSL 0 5 30, HSL 0 5 10]
 
+gradients :: [String]
+gradients =
+  [ "background-image: linear-gradient(0deg, hsl(var(--primary-dark)) 10%, hsl(var(--primary-light)) 90%);"
+  , "background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary-light)), hsl(var(--primary-dark)));"
+  , "background-image: linear-gradient(90deg, hsl(var(--dark)) 0%, hsl(var(--primary-dark)) 35%, hsl(var(--primary)) 100%);"
+  , "background-image: linear-gradient(122deg, hsl(var(--primary-light)) 0%, hsl(var(--primary-dark)) 100%);"
+  ]
+
 getIn :: [a] -> IO a
 getIn as = do
   n <- randomRIO (0, length as - 1)
   pure $ as !! n
 
-handler :: Event -> Context -> IO (Either Text Response)
-handler _ context = do
-  q    <- getIn quotes
-  t    <- getIn themes
-  tmpl <- getIn [shadowTemplate, blurTemplate]
+mkBody :: IO Text
+mkBody = do
+  q <- getIn quotes
+  t <- getIn themes
 
+  n <- randomRIO (0, 1 :: Int)
+  let tmpl = [shadowTemplate, blurTemplate] !! n
+  c <- [pure "background-color: hsl(var(--light));", getIn gradients] !! n
+  pure . tmpl $ ThemeData q t c
+
+handler :: Event -> Context -> IO (Either Text Response)
+handler _ _ = do
+  body <- mkBody
   pure $ Right Response
     { statusCode = 200
     , headers    = object ["Content-Type" .= ("text/html" :: Text)]
-    , body       = tmpl $ ThemeData q t
+    , body       = body
     }
