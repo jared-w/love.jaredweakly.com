@@ -1,5 +1,3 @@
-{-# Language QuasiQuotes #-}
-{-# Language TemplateHaskell #-}
 module Lib where
 
 import           GHC.Generics
@@ -10,6 +8,7 @@ import qualified Data.Text.Lazy                as TL
 import           Data.Text.Lazy                 ( Text )
 import           Text.Mustache
 import qualified Text.Mustache.Compile.TH      as TH
+import           Generate
 
 data Event = Event
     { resource :: Text }
@@ -19,11 +18,6 @@ data Response = Response
     { statusCode :: Int
     , headers :: Value
     , body :: Text
-    } deriving (Show, Generic, ToJSON)
-
-data ThemeData = ThemeData
-    { title :: Text
-    , theme :: Text
     } deriving (Show, Generic, ToJSON)
 
 quotes :: [Text]
@@ -44,46 +38,28 @@ quotes =
   , "Hey I luff you"
   ]
 
-themes :: [[Text]]
+-- | Themes currently must be a list of 5 colors that are defined as HSL(A)
+-- triplets
+-- This restriction will be lifted later when I become less lazy about CSS
+themes :: [Theme]
 themes = [greenTheme, toneTheme, starLight, bAndW]
  where
-  greenTheme :: [Text]
-  greenTheme =
-    [ "hsl(71, 58%, 93%)"
-    , "hsl(148, 57%, 83%)"
-    , "hsl(168, 46%, 69%)"
-    , "hsl(184, 40%, 52%)"
-    , "hsl(207, 58%, 35%)"
-    ]
+  mkTheme [l, pl, p, pd, d] = Theme l pl p pd d
 
-  toneTheme :: [Text]
-  toneTheme = ["#EAD3AE", "#ECDBAD", "#CC948D", "#A25D68", "#654A60"]
+  greenTheme :: Theme
+  greenTheme = mkTheme
+    [HSL 71 58 93, HSL 148 57 83, HSL 168 46 69, HSL 184 40 52, HSL 207 58 35]
 
-  starLight :: [Text]
-  starLight = ["#DAB989", "#69B2C4", "#4578D1", "#213D77", "#202C4B"]
+  toneTheme :: Theme
+  toneTheme = mkTheme
+    [HSL 37 59 80, HSL 44 62 80, HSL 7 38 68, HSL 350 27 50, HSL 311 15 34]
 
-  bAndW :: [Text]
-  bAndW = ["#0f0f0f", "#3d3d3d", "#6b6b6b", "#a8a8a8", "#e6e6e6"]
+  starLight :: Theme
+  starLight = mkTheme
+    [HSL 36 42 70, HSL 192 44 59, HSL 218 60 55, HSL 220 57 30, HSL 223 40 21]
 
-mkTheme :: [Text] -> Text
-mkTheme t = TL.concat $ zipWith (\a b -> a <> ": " <> b <> ";") vars t
- where
-  vars =
-    ["--light", "--primary-light", "--primary", "--primary-dark", "--dark"]
-
-shadowTemplate :: ThemeData -> Text
-shadowTemplate d =
-  let mainT = $(TH.compileMustacheFile "./src/templates/shadow.mustache")
-      styleT =
-          $(TH.compileMustacheFile "./src/templates/shadow.style.mustache")
-  in  renderMustache (mainT <> styleT) (toJSON d)
-
-blurTemplate :: ThemeData -> Text
-blurTemplate d =
-  let mainT = $(TH.compileMustacheFile "./src/templates/blur.mustache")
-      styleT =
-          $(TH.compileMustacheFile "./src/templates/blur.style.mustache")
-  in  renderMustache (mainT <> styleT) (toJSON d)
+  bAndW :: Theme
+  bAndW = mkTheme [HSL 0 5 90, HSL 0 5 70, HSL 0 5 50, HSL 0 5 30, HSL 0 5 10]
 
 getIn :: [a] -> IO a
 getIn as = do
@@ -99,5 +75,5 @@ handler _ context = do
   pure $ Right Response
     { statusCode = 200
     , headers    = object ["Content-Type" .= ("text/html" :: Text)]
-    , body       = tmpl $ ThemeData q (mkTheme t)
+    , body       = tmpl $ ThemeData q t
     }

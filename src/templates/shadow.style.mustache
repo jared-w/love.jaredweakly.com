@@ -11,7 +11,7 @@
 }
 
 body {
-    background-color: var(--light);
+    background-color: hsl(var(--light));
     display: grid;
     place-content: center;
 }
@@ -23,31 +23,38 @@ body {
 
 h1 {
     font-size: calc(2rem + 2.4vw * 1.5);
-    color: var(--dark);
+    color: hsl(var(--dark));
     padding: 10vmin;
 
     transition: text-shadow 0.25s ease-in;
+    will-change: text-shadow;
 }
 
 h1:hover {
     transition: text-shadow 0.25s ease-out;
+    will-change: text-shadow;
 
     /* prettier-ignore */
     text-shadow:
-        0 1px 0px var(--primary-light),
-        1px 0 0px var(--primary-dark),
-        1px 2px 1px var(--primary-light),
-        2px 1px 1px var(--primary-dark),
-        2px 3px 2px var(--primary-light),
-        3px 2px 2px var(--primary-dark),
-        3px 4px 2px var(--primary-light),
-        4px 3px 3px var(--primary-dark),
-        4px 5px 3px var(--primary-light),
-        5px 4px 2px var(--primary-dark),
-        5px 6px 2px var(--primary-light),
-        6px 5px 2px var(--primary-dark),
-        6px 7px 1px var(--primary-light),
-        7px 6px 1px var(--primary-dark),
-        7px 8px 0px var(--primary-light),
-        8px 7px 0px var(--primary-dark);
+        0px 1px 0px hsl(var(--primary-light)),
+        1px 0px 0px hsl(var(--primary-dark)),
+        1px 2px 1px hsl(var(--primary-light)),
+        2px 1px 1px hsl(var(--primary-dark)),
+        2px 3px 2px hsl(var(--primary-light)),
+        3px 2px 2px hsl(var(--primary-dark)),
+        3px 4px 2px hsl(var(--primary-light)),
+        4px 3px 3px hsl(var(--primary-dark)),
+        4px 5px 3px hsl(var(--primary-light)),
+        5px 4px 2px hsl(var(--primary-dark)),
+        5px 6px 2px hsl(var(--primary-light)),
+        6px 5px 2px hsl(var(--primary-dark)),
+        6px 7px 1px hsl(var(--primary-light)),
+        7px 6px 1px hsl(var(--primary-dark)),
+        7px 8px 0px hsl(var(--primary-light)),
+        8px 7px 0px hsl(var(--primary-dark)),
+
+        10px 12px 6px hsla(var(--primary-dark), 0.4),
+        10px 16px 10px hsla(var(--primary-dark), 0.2),
+        10px 19px 35px hsla(var(--primary-dark), 0.2),
+        10px 24px 60px hsla(var(--primary-dark), 0.4);
 }
